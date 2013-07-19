@@ -787,5 +787,64 @@ class ChargifyConnector
 		}
 		return $result;		
 	}	
+	
+	/****************************************************
+	 **********       WEBHOOK FUNCTIONS       ***********
+	 ****************************************************/
+
+	/**
+	 * $options is an associative array, it's top-most level can contain the keys: kinds, since_id, max_id, since_date, until_date, page, and per_page
+	 * kinds can be an array; since_date and until_date are strings formatted YYYY-MM-DD
+	 *
+	 * @param unknown_type $format
+	 * @param unknown_type $options
+	 * @return unknown
+	 */
+	public function retrieveAllWebHooks($format = 'XML', $options = array()) {
+		$extension = strtoupper($format) == 'XML' ? '.xml' : '.json';
+		$params = $this->getOptionParams($options);
+		$base_url = "/webhooks" . $extension. $params;
+
+		$xml = $this->sendRequest($base_url, $format, 'GET');
+
+		if ($xml->code == 200) { //SUCCESS
+			return $xml->response;
+		} else { //ERROR
+			$errors = new SimpleXMLElement($xml->response);
+			throw new ChargifyValidationException($xml->code, $errors);  		
+		}				
+	}
+	
+	public function getAllWebHooks($options = array()) {
+		$xml = $this->retrieveAllWebHooks('XML', $options);
+		$result = array();
+		$webhooks = new SimpleXMLElement($xml);
+		foreach($webhooks as $key => $element)
+		{
+			$result[] = new ChargifyWebHook($element, $this->test_mode);
+		}
+		return $result;		
+	}
+  
+	public function requestReplayWebHooks($webHooksRequest, $format = 'XML') {
+		$extension = strtoupper($format) == 'XML' ? '.xml' : '.json';
+		$base_url = "/webhooks/replay" . $extension;
+
+		$webhook_request = $this->sendRequest($base_url, $format, 'POST', $webHooksRequest);
+		if ($webhook_request->code == 200) { //OK			
+			return $webhook_request->response;
+		} else { //ERROR
+			$errors = new SimpleXMLElement($webhook_request->response);
+			throw new ChargifyValidationException($webhook_request->code, $errors);  		
+		}		
+	}
+	
+	public function replayWebHooks($ids) {
+		$payload = json_encode(array('ids'=> $ids));
+		$xml = $this->requestReplayWebHooks($payload , 'json');
+		$result = new SimpleXMLElement($xml);
+		return (string) $result == 'ok' ? TRUE : FALSE;
+	}
+
 }
 ?>

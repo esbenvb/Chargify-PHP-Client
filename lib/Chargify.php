@@ -14,4 +14,5 @@ require_once('ChargifyQuantityBasedComponent.php');
 require_once('ChargifySubscription.php');
 require_once('ChargifyTransaction.php');
 require_once('ChargifyUsage.php');
+require_once('ChargifyWebHook.php');
 ?>
