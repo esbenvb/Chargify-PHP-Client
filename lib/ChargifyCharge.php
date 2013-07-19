@@ -8,6 +8,8 @@ class ChargifyCharge extends ChargifyBase
 	//**** INPUT ONLY VARIABLES ****
 	//******************************
 	var $amount;
+	var $use_negative_balance;
+	var $delay_capture;
 
 	//******************************
 	//** INPUT & OUTPUT VARIABLES **
