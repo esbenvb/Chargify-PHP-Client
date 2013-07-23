@@ -673,6 +673,40 @@ class ChargifyConnector
 		return $this->updateQuantityBasedComponent($subscription_id, $component_id, $chargify_component);	
 	}
 	
+	public function retrieveGetOnOffComponent($subscription_id, $component_id, $format = 'XML') {
+		$extension = strtoupper($format) == 'XML' ? '.xml' : '.json';
+		$base_url = "/subscriptions/{$subscription_id}/components/{$component_id}" . $extension;
+
+		$components = $this->sendRequest($base_url, $format);
+		return $components->response;		
+	}
+	
+	public function requestUpdateOnOffComponent($subscription_id, $component_id, $componentRequest, $format = 'XML') {
+		$extension = strtoupper($format) == 'XML' ? '.xml' : '.json';
+		$base_url = "/subscriptions/{$subscription_id}/components/{$component_id}" . $extension;
+
+		$xml = $this->sendRequest($base_url, $format, 'PUT', $componentRequest);
+
+		if ($xml->code == 200) { //SUCCESS
+			return $xml->response;
+		} elseif ($xml->code == 422) { //UNPROCESSABLE ENTITY
+			$errors = new SimpleXMLElement($xml->response);
+			throw new ChargifyValidationException($xml->code, $errors);  		
+		}		
+	}
+	
+	public function updateOnOffComponent($subscription_id, $component_id, $chargify_component) {
+		$xml = $this->requestUpdateOnOffComponent($subscription_id, $component_id, $chargify_component->getXML());
+		$component = new SimpleXMLElement($xml);
+		return new ChargifyQuantityBasedComponent($component, $this->test_mode);
+	}
+	
+	public function getOnOffComponent($subscription_id, $component_id, $chargify_component) {
+		$xml = $this->retrieveGetOnOffComponent($subscription_id, $component_id);
+		$component = new SimpleXMLElement($xml);
+		return new ChargifyQuantityBasedComponent($component, $this->test_mode);
+	}
+	
 	public function getAllMeteredComponents($subscription_id, $component_id) {
 		$xml = $this->retrieveAllMeteredComponents($subscription_id, $component_id);	
 		$all_metered_components = new SimpleXMLElement($xml);
