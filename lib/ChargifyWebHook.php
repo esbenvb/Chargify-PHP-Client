@@ -37,7 +37,6 @@ class ChargifyWebHook extends ChargifyBase
   }  
 
 	public function replay($webhook_ids) {
-		//return empty($webhook_ids) ? FALSE : $this->connector->replayWebHooks($this->makeXMLList($webhook_ids));
     return empty($webhook_ids) ? FALSE : $this->connector->replayWebHooks($webhook_ids);
 	}
 	

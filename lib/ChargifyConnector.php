@@ -868,16 +868,16 @@ class ChargifyConnector
 		if ($webhook_request->code == 200) { //OK			
 			return $webhook_request->response;
 		} else { //ERROR
-			$errors = new SimpleXMLElement($webhook_request->response);
+			$errors = json_decode($webhook_request->response);
 			throw new ChargifyValidationException($webhook_request->code, $errors);  		
 		}		
 	}
 	
 	public function replayWebHooks($ids) {
 		$payload = json_encode(array('ids'=> $ids));
-		$xml = $this->requestReplayWebHooks($payload , 'json');
-		$result = new SimpleXMLElement($xml);
-		return (string) $result == 'ok' ? TRUE : FALSE;
+		$json = $this->requestReplayWebHooks($payload , 'json');
+		$result = json_decode($xml);
+		return !empty($result['status']) && (string) $result['status'] == 'ok' ? TRUE : FALSE;
 	}
 
 }
