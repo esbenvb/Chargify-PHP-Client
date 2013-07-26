@@ -27,15 +27,6 @@ class ChargifyWebHook extends ChargifyBase
 		return "webhook";
 	}
 
-  protected function makeXMLList($ids) {
-    $xml = simplexml_load_string("<?xml version='1.0' encoding='utf-8'?><ids type = \"array\"/>"); //
-    foreach ($ids as $id) {
-      $element = $xml->addChild('id', $id);
-      $element->addAttribute('type', 'integer');
-    }
-    return $xml->asXML();
-  }  
-
 	public function replay($webhook_ids) {
     return empty($webhook_ids) ? FALSE : $this->connector->replayWebHooks($webhook_ids);
 	}
