@@ -876,7 +876,7 @@ class ChargifyConnector
 	public function replayWebHooks($ids) {
 		$payload = json_encode(array('ids'=> $ids));
 		$json = $this->requestReplayWebHooks($payload , 'json');
-		$result = json_decode($xml);
+		$result = json_decode($json);
 		return !empty($result['status']) && (string) $result['status'] == 'ok' ? TRUE : FALSE;
 	}
 
